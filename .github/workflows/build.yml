@@ -26,10 +26,19 @@ jobs:
         run: |
           pip install pyinstaller "markitdown[all]"
 
+      - name: Create wrapper
+        run: |
+          cat << 'EOF' > cli.py
+          from markitdown.__main__ import main
+          if __name__ == "__main__":
+              main()
+          EOF
+
       - name: Build binary
         run: |
-          pyinstaller --onefile markitdown \
-            --name markitdown-${{ runner.os }}
+          pyinstaller --onefile cli.py \
+            --name markitdown-${{ runner.os }} \
+            --collect-all markitdown
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
