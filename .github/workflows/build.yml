@@ -1,4 +1,4 @@
-name: Build and Commit MarkItDown Binaries
+name: Build and Publish MarkItDown Binaries
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -23,26 +23,25 @@ jobs:
       - name: Install markitdown CLI
         run: cargo install markitdown
 
-      - name: Prepare dist folder
+      - name: Prepare dist
         run: mkdir -p dist
 
-      - name: Copy Linux binary
+      - name: Copy binary
         run: |
-          BIN="$HOME/.cargo/bin/markitdown"
-          cp "$BIN" dist/markitdown-linux
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
 
-      - name: Commit binaries
-        uses: EndBug/add-and-commit@v10
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
         with:
-          add: "dist"
-          message: "chore: update markitdown linux binary"
+          name: linux-binary
+          path: dist/markitdown-linux
 
   build-macos:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -50,16 +49,41 @@ jobs:
       - name: Install markitdown CLI
         run: cargo install markitdown
 
-      - name: Prepare dist folder
+      - name: Prepare dist
         run: mkdir -p dist
 
-      - name: Copy macOS binary
+      - name: Copy binary
         run: |
-          BIN="$HOME/.cargo/bin/markitdown"
-          cp "$BIN" dist/markitdown-macos
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: macos-binary
+          path: dist/markitdown-macos
+
+  commit:
+    needs: [build-linux, build-macos]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Download Linux binary
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-binary
+          path: dist
+
+      - name: Download macOS binary
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-binary
+          path: dist
 
       - name: Commit binaries
         uses: EndBug/add-and-commit@v10
         with:
           add: "dist"
-          message: "chore: update markitdown macos binary"
+          message: "chore: update markitdown binaries"
