@@ -2,9 +2,6 @@ name: Build and Publish MarkItDown Binaries
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
 
 permissions:
   contents: write
@@ -29,6 +26,9 @@ jobs:
       - name: Copy binary
         run: |
           cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
+
+      - name: Ensure executable
+        run: chmod +x dist/markitdown-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -56,6 +56,9 @@ jobs:
         run: |
           cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
 
+      - name: Ensure executable
+        run: chmod +x dist/markitdown-macos
+        
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
@@ -82,6 +85,9 @@ jobs:
           name: macos-binary
           path: dist
 
+      - name: Ensure executables
+        run: chmod +x dist/*
+        
       - name: Commit binaries
         uses: EndBug/add-and-commit@v10
         with:
