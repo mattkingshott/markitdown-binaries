@@ -1,4 +1,4 @@
-name: Build MarkItDown Binaries
+name: Build and Commit MarkItDown Binaries
 
 on:
   workflow_dispatch:
@@ -6,44 +6,60 @@ on:
     tags:
       - "v*"
 
-jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact: markitdown-linux
-          - os: macos-latest
-            artifact: markitdown-macos
+permissions:
+  contents: write
 
-    runs-on: ${{ matrix.os }}
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
 
       - name: Install markitdown CLI
         run: cargo install markitdown
 
-      - name: Prepare artifact folder
+      - name: Prepare dist folder
         run: mkdir -p dist
 
-      - name: Copy binary
+      - name: Copy Linux binary
         run: |
-          mkdir -p dist
-      
           BIN="$HOME/.cargo/bin/markitdown"
-      
-          if [ ! -f "$BIN" ]; then
-            echo "Binary not found at $BIN"
-            ls -R $HOME/.cargo/bin
-            exit 1
-          fi
-      
-          cp "$BIN" dist/markitdown-${{ matrix.os }}
+          cp "$BIN" dist/markitdown-linux
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v5
+      - name: Commit binaries
+        uses: EndBug/add-and-commit@v10
         with:
-          name: ${{ matrix.artifact }}
-          path: dist/*
+          add: "dist"
+          message: "chore: update markitdown linux binary"
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install markitdown CLI
+        run: cargo install markitdown
+
+      - name: Prepare dist folder
+        run: mkdir -p dist
+
+      - name: Copy macOS binary
+        run: |
+          BIN="$HOME/.cargo/bin/markitdown"
+          cp "$BIN" dist/markitdown-macos
+
+      - name: Commit binaries
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: "dist"
+          message: "chore: update markitdown macos binary"
