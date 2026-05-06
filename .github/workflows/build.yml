@@ -1,4 +1,4 @@
-name: Build MarkItDown (Rust)
+name: Build MarkItDown Binaries
 
 on:
   workflow_dispatch:
@@ -12,30 +12,32 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
             artifact: markitdown-linux
           - os: macos-latest
-            target: x86_64-apple-darwin
             artifact: markitdown-macos
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Install Rust
+      - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          target: ${{ matrix.target }}
 
-      - name: Build release binary
-        run: |
-          cargo build --release --target ${{ matrix.target }}
+      - name: Install markitdown CLI
+        run: cargo install markitdown
 
-      - name: Rename binary
+      - name: Prepare artifact folder
+        run: mkdir -p dist
+
+      - name: Locate and copy binary (Linux/macOS)
         run: |
-          mkdir -p dist
-          cp target/${{ matrix.target }}/release/markitdown dist/${{ matrix.artifact }}
+          BIN_PATH=$(cargo install --list | grep -A1 "markitdown" | tail -n1 | awk '{print $1}')
+          
+          # fallback if grep parsing fails
+          if [ -z "$BIN_PATH" ]; then
+            BIN_PATH="$HOME/.cargo/bin/markitdown"
+          fi
+
+          cp "$BIN_PATH" dist/${{ matrix.artifact }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v5
