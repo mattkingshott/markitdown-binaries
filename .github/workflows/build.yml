@@ -15,20 +15,20 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install dependencies
         run: |
-          pip install pyinstaller markitdown
+          pip install pyinstaller "markitdown[all]"
 
       - name: Build binary
         run: |
-          pyinstaller --onefile -m markitdown \
+          pyinstaller --onefile markitdown \
             --name markitdown-${{ runner.os }}
 
       - name: Upload artifact
