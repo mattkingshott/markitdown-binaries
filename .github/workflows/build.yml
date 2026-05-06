@@ -28,16 +28,19 @@ jobs:
       - name: Prepare artifact folder
         run: mkdir -p dist
 
-      - name: Locate and copy binary (Linux/macOS)
+      - name: Copy binary
         run: |
-          BIN_PATH=$(cargo install --list | grep -A1 "markitdown" | tail -n1 | awk '{print $1}')
-          
-          # fallback if grep parsing fails
-          if [ -z "$BIN_PATH" ]; then
-            BIN_PATH="$HOME/.cargo/bin/markitdown"
+          mkdir -p dist
+      
+          BIN="$HOME/.cargo/bin/markitdown"
+      
+          if [ ! -f "$BIN" ]; then
+            echo "Binary not found at $BIN"
+            ls -R $HOME/.cargo/bin
+            exit 1
           fi
-
-          cp "$BIN_PATH" dist/${{ matrix.artifact }}
+      
+          cp "$BIN" dist/markitdown-${{ matrix.os }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v5
