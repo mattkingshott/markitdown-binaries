@@ -1,0 +1,9 @@
+{
+    "name": "mattkingshott/markitdown",
+    "description": "Dependency-free binaries of Microsoft's MarkItDown CLI tool.",
+    "type": "library",
+    "license": "Unlicense",
+    "require": {
+        "php": ">=7.0"
+    }
+}
