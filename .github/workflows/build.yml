@@ -148,6 +148,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           path: dist
+          merge-multiple: true
 
       - name: Ensure executables
         run: chmod +x dist/*
