@@ -197,6 +197,8 @@ EOF
 
   commit:
     needs: [
+      build-image-linux,
+      build-image-macos,
       build-markitdown-linux, 
       build-markitdown-macos
     ]
