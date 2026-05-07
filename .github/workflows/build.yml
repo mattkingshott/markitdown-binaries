@@ -7,135 +7,71 @@ permissions:
   contents: write
 
 jobs:
-build-image-linux:
-  runs-on: ubuntu-latest
+  build-image-linux:
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Install Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
+    steps:
+      - name: Checkout    
+      - uses: actions/checkout@v6
 
-    - name: Create project structure
-      run: |
-        mkdir -p image/src
+      - name: Install Rust toolchain
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: x86_64-unknown-linux-musl
 
-    - name: Generate Cargo.toml (AVIF enabled)
-      run: |
-        cat > image/Cargo.toml << 'EOF'
-[package]
-name = "image"
-version = "0.1.0"
-edition = "2021"
+      - name: Install musl tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
-[dependencies]
-image = { version = "0.25", features = ["png", "jpeg", "webp", "bmp", "gif", "tiff", "avif"] }
-ravif = "0.11"
-clap = { version = "4", features = ["derive"] }
-EOF
+      - name: Build release
+        run: |
+          cargo build --release \
+            --manifest-path packages/image/cargo.toml \
+            --target x86_64-unknown-linux-musl
 
-    - name: Generate main.rs
-      run: |
-        cat > image/src/main.rs << 'EOF'
-use clap::Parser;
+      - name: Prepare dist
+        run: mkdir -p dist
 
-#[derive(Parser)]
-struct Args {
-    input: String,
-    output: String,
-}
+      - name: Prepare artifact
+        run: cp target/x86_64-unknown-linux-musl/release/image dist/image/linux
 
-fn main() {
-    let args = Args::parse();
+      - name: Ensure executable
+        run: chmod +x dist/image/linux
 
-    let img = image::open(&args.input).expect("failed to open image");
-    let rgb = img.to_rgb8();
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: image-linux
+          path: dist/image/linux
 
-    rgb.save(&args.output).expect("failed to save image");
-}
-EOF
+  build-image-macos:
+    runs-on: macos-latest
 
-    - name: Build release
-      run: |
-        cd image
-        cargo build --release
+    steps:
+      - name: Checkout    
+      - uses: actions/checkout@v6
 
-    - name: Prepare dist
-      run: |
-        mkdir -p dist
-        cp image/target/release/image dist/image/linux
+      - name: Install Rust toolchain
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
 
-    - name: Make executable
-      run: chmod +x dist/image/linux
+      - name: Build release
+        run: |
+          cargo build --release \
+            --manifest-path packages/image/cargo.toml
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: image-linux
-        path: dist/image/linux
+      - name: Prepare dist
+        run: mkdir -p dist
 
-build-image-macos:
-  runs-on: macos-latest
+      - name: Prepare artifact
+        run: cp target/release/image dist/image/macos
 
-  steps:
-    - name: Install Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Ensure executable
+        run: chmod +x dist/image/macos
 
-    - name: Create project structure
-      run: |
-        mkdir -p image/src
-
-    - name: Generate Cargo.toml (AVIF enabled)
-      run: |
-        cat > image/Cargo.toml << 'EOF'
-[package]
-name = "image"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-image = { version = "0.25", features = ["png", "jpeg", "webp", "bmp", "gif", "tiff", "avif"] }
-ravif = "0.11"
-clap = { version = "4", features = ["derive"] }
-EOF
-
-    - name: Generate main.rs
-      run: |
-        cat > image/src/main.rs << 'EOF'
-use clap::Parser;
-
-#[derive(Parser)]
-struct Args {
-    input: String,
-    output: String,
-}
-
-fn main() {
-    let args = Args::parse();
-
-    let img = image::open(&args.input).expect("failed to open image");
-    let rgb = img.to_rgb8();
-
-    rgb.save(&args.output).expect("failed to save image");
-}
-EOF
-
-    - name: Build release
-      run: |
-        cd image
-        cargo build --release
-
-    - name: Prepare dist
-      run: |
-        mkdir -p dist
-        cp image/target/release/image dist/image/macos
-
-    - name: Make executable
-      run: chmod +x dist/image/macos
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: image-macos
-        path: dist/image/macos
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: image-macos
+          path: dist/image/macos
 
   build-markitdown-linux:
     runs-on: ubuntu-latest
@@ -163,7 +99,7 @@ EOF
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: linux-binary
+          name: markitdown-linux
           path: dist/markitdown/linux
 
   build-markitdown-macos:
@@ -192,7 +128,7 @@ EOF
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: macos-binary
+          name: markitdown-macos
           path: dist/markitdown/macos
 
   commit:
