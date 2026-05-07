@@ -20,7 +20,7 @@ jobs:
           target: x86_64-unknown-linux-musl
 
       - name: Install musl tools
-        run: sudo apt-get update && sudo apt-get install -y musl-tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools && sudo apt-get install -y nasm
 
       - name: Build release
         run: |
@@ -32,16 +32,16 @@ jobs:
         run: mkdir -p dist
 
       - name: Prepare artifact
-        run: cp target/x86_64-unknown-linux-musl/release/image dist/image/linux
+        run: cp target/x86_64-unknown-linux-musl/release/image dist/image-linux
 
       - name: Ensure executable
-        run: chmod +x dist/image/linux
+        run: chmod +x dist/image-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: image-linux
-          path: dist/image/linux
+          path: dist/image-linux
 
   build-image-macos:
     runs-on: macos-latest
@@ -62,16 +62,16 @@ jobs:
         run: mkdir -p dist
 
       - name: Prepare artifact
-        run: cp target/release/image dist/image/macos
+        run: cp target/release/image dist/image-macos
 
       - name: Ensure executable
-        run: chmod +x dist/image/macos
+        run: chmod +x dist/image-macos
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: image-macos
-          path: dist/image/macos
+          path: dist/image-macos
 
   build-markitdown-linux:
     runs-on: ubuntu-latest
@@ -91,16 +91,16 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown/linux
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
 
       - name: Ensure executable
-        run: chmod +x dist/markitdown/linux
+        run: chmod +x dist/markitdown-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: markitdown-linux
-          path: dist/markitdown/linux
+          path: dist/markitdown-linux
 
   build-markitdown-macos:
     runs-on: macos-latest
@@ -120,16 +120,16 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown/macos
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
 
       - name: Ensure executable
-        run: chmod +x dist/markitdown/macos
+        run: chmod +x dist/markitdown-macos
         
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: markitdown-macos
-          path: dist/markitdown/macos
+          path: dist/markitdown-macos
 
   commit:
     needs: [
