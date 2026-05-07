@@ -1,5 +1,6 @@
-# MarkItDown Binaries
+# Converters
 
-This repository contains zero-dependency MacOS and Linux (Ubuntu) binaries.
+This repository contains zero-dependency MacOS and Linux (Ubuntu) binaries for a range of conversion tools including:
 
-They are built from [markitdown-rs](https://crates.io/crates/markitdown), a Rust port of Microsoft's [MarkItDown](https://github.com/microsoft/markitdown) CLI tool.
+- [markitdown-rs](https://crates.io/crates/markitdown) - a port of Microsoft's [python project](https://github.com/microsoft/markitdown).
+- [vips](https://github.com/libvips/libvips) - image conversion and processing.
