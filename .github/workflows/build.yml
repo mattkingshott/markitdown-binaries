@@ -1,4 +1,4 @@
-name: Build and Publish MarkItDown Binaries
+name: Build and Publish Binaries
 
 on:
   workflow_dispatch:
@@ -7,7 +7,137 @@ permissions:
   contents: write
 
 jobs:
-  build-linux:
+build-image-linux:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Install Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Create project structure
+      run: |
+        mkdir -p image/src
+
+    - name: Generate Cargo.toml (AVIF enabled)
+      run: |
+        cat > image/Cargo.toml << 'EOF'
+[package]
+name = "image"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = { version = "0.25", features = ["png", "jpeg", "webp", "bmp", "gif", "tiff", "avif"] }
+ravif = "0.11"
+clap = { version = "4", features = ["derive"] }
+EOF
+
+    - name: Generate main.rs
+      run: |
+        cat > image/src/main.rs << 'EOF'
+use clap::Parser;
+
+#[derive(Parser)]
+struct Args {
+    input: String,
+    output: String,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    let img = image::open(&args.input).expect("failed to open image");
+    let rgb = img.to_rgb8();
+
+    rgb.save(&args.output).expect("failed to save image");
+}
+EOF
+
+    - name: Build release
+      run: |
+        cd image
+        cargo build --release
+
+    - name: Prepare dist
+      run: |
+        mkdir -p dist
+        cp image/target/release/image dist/image/linux
+
+    - name: Make executable
+      run: chmod +x dist/image/linux
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: image-linux
+        path: dist/image/linux
+
+build-image-macos:
+  runs-on: macos-latest
+
+  steps:
+    - name: Install Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Create project structure
+      run: |
+        mkdir -p image/src
+
+    - name: Generate Cargo.toml (AVIF enabled)
+      run: |
+        cat > image/Cargo.toml << 'EOF'
+[package]
+name = "image"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = { version = "0.25", features = ["png", "jpeg", "webp", "bmp", "gif", "tiff", "avif"] }
+ravif = "0.11"
+clap = { version = "4", features = ["derive"] }
+EOF
+
+    - name: Generate main.rs
+      run: |
+        cat > image/src/main.rs << 'EOF'
+use clap::Parser;
+
+#[derive(Parser)]
+struct Args {
+    input: String,
+    output: String,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    let img = image::open(&args.input).expect("failed to open image");
+    let rgb = img.to_rgb8();
+
+    rgb.save(&args.output).expect("failed to save image");
+}
+EOF
+
+    - name: Build release
+      run: |
+        cd image
+        cargo build --release
+
+    - name: Prepare dist
+      run: |
+        mkdir -p dist
+        cp image/target/release/image dist/image/macos
+
+    - name: Make executable
+      run: chmod +x dist/image/macos
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: image-macos
+        path: dist/image/macos
+
+  build-markitdown-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,18 +155,18 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown/linux
 
       - name: Ensure executable
-        run: chmod +x dist/markitdown-linux
+        run: chmod +x dist/markitdown/linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: linux-binary
-          path: dist/markitdown-linux
+          path: dist/markitdown/linux
 
-  build-macos:
+  build-markitdown-macos:
     runs-on: macos-latest
 
     steps:
@@ -54,19 +184,22 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
+          cp "$HOME/.cargo/bin/markitdown" dist/markitdown/macos
 
       - name: Ensure executable
-        run: chmod +x dist/markitdown-macos
+        run: chmod +x dist/markitdown/macos
         
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: macos-binary
-          path: dist/markitdown-macos
+          path: dist/markitdown/macos
 
   commit:
-    needs: [build-linux, build-macos]
+    needs: [
+      build-markitdown-linux, 
+      build-markitdown-macos
+    ]
     runs-on: ubuntu-latest
 
     steps:
@@ -92,4 +225,4 @@ jobs:
         uses: EndBug/add-and-commit@v10
         with:
           add: "dist"
-          message: "chore: update markitdown binaries"
+          message: "chore: update binaries"

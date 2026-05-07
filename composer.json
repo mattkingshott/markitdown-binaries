@@ -1,6 +1,6 @@
 {
-    "name": "mattkingshott/markitdown",
-    "description": "Dependency-free binaries of Microsoft's MarkItDown CLI tool.",
+    "name": "mattkingshott/converters",
+    "description": "Dependency-free conversion tool binaries.",
     "type": "library",
     "license": "Unlicense",
     "require": {
