@@ -28,6 +28,27 @@ jobs:
             --manifest-path packages/image/Cargo.toml \
             --target x86_64-unknown-linux-musl
 
+      - name: Debug compiled binary locations
+        run: |
+          echo "=== FULL WORKSPACE TREE (limited depth) ==="
+          find . -maxdepth 6 -type f -executable 2>/dev/null || true
+
+          echo ""
+          echo "=== TARGET DIRECTORIES ==="
+          find target -type f -maxdepth 5 2>/dev/null || true
+
+          echo ""
+          echo "=== LOOKING FOR 'image' BINARY ==="
+          find . -type f -name "image" -o -name "image.exe" 2>/dev/null || true
+
+          echo ""
+          echo "=== RELEASE FOLDER CONTENTS ==="
+          ls -R target/release 2>/dev/null || true
+
+          echo ""
+          echo "=== ENTIRE TARGET TREE (if exists) ==="
+          ls -R target 2>/dev/null || true
+
       - name: Prepare dist
         run: mkdir -p dist
 
