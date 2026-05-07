@@ -32,7 +32,7 @@ jobs:
         run: mkdir -p dist
 
       - name: Prepare artifact
-        run: cp "$HOME/work/converters/converters/packages/image" dist/image-linux
+        run: cp "$HOME/work/converters/converters/packages/image/release/image" dist/image-linux
 
       - name: Ensure executable
         run: chmod +x dist/image-linux
@@ -62,7 +62,7 @@ jobs:
         run: mkdir -p dist
 
       - name: Prepare artifact
-        run: cp "$HOME/work/converters/converters/packages/image" dist/image-macos
+        run: cp "$HOME/work/converters/converters/packages/image/release/image" dist/image-macos
 
       - name: Ensure executable
         run: chmod +x dist/image-macos
