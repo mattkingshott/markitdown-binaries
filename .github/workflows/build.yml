@@ -1,4 +1,4 @@
-name: Build and Publish Binaries
+name: Build
 
 on:
   workflow_dispatch:
@@ -133,20 +133,20 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/ffmpeg-linux
+          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/audio-linux
 
       - name: Strip binary
         run: |
-          strip dist/ffmpeg-linux
+          strip dist/audio-linux
 
       - name: Ensure executable
-        run: chmod +x dist/ffmpeg-linux
+        run: chmod +x dist/audio-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: ffmpeg-linux
-          path: dist/ffmpeg-linux
+          name: audio-linux
+          path: dist/audio-linux
 
   build-ffmpeg-macos:
     runs-on: macos-15
@@ -268,20 +268,20 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/ffmpeg-macos
+          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/audio-macos
 
       - name: Strip binary
         run: |
-          strip -x dist/ffmpeg-macos
+          strip -x dist/audio-macos
 
       - name: Ensure executable
-        run: chmod +x dist/ffmpeg-macos
+        run: chmod +x dist/audio-macos
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: ffmpeg-macos
-          path: dist/ffmpeg-macos
+          name: audio-macos
+          path: dist/audio-macos
           
   build-image-linux:
     runs-on: ubuntu-latest
@@ -375,20 +375,20 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
+          cp "$HOME/.cargo/bin/markitdown" dist/document-linux
 
       - name: Strip binary
         run: |
-          strip -x dist/markitdown-linux
+          strip -x dist/document-linux
           
       - name: Ensure executable
-        run: chmod +x dist/markitdown-linux
+        run: chmod +x dist/document-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: markitdown-linux
-          path: dist/markitdown-linux
+          name: document-linux
+          path: dist/document-linux
 
   build-markitdown-macos:
     runs-on: macos-latest
@@ -408,20 +408,20 @@ jobs:
 
       - name: Copy binary
         run: |
-          cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
+          cp "$HOME/.cargo/bin/markitdown" dist/document-macos
 
       - name: Strip binary
         run: |
-          strip -x dist/markitdown-macos
+          strip -x dist/document-macos
           
       - name: Ensure executable
-        run: chmod +x dist/markitdown-macos
+        run: chmod +x dist/document-macos
         
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: markitdown-macos
-          path: dist/markitdown-macos
+          name: document-macos
+          path: dist/document-macos
 
   commit:
     needs: [
