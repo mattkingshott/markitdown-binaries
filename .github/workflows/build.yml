@@ -7,6 +7,268 @@ permissions:
   contents: write
 
 jobs:
+  build-ffmpeg-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            yasm \
+            nasm \
+            curl \
+            tar \
+            xz-utils \
+            autoconf \
+            automake \
+            libtool
+
+      - name: Download LAME
+        run: |
+          curl -L \
+            https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz \
+            -o lame.tar.gz
+
+          tar xf lame.tar.gz
+
+      - name: Build LAME
+        run: |
+          cd lame-3.100
+
+          ./configure \
+            --disable-shared \
+            --enable-static \
+            --prefix="$PWD/../lame-build"
+
+          make -j"$(nproc)"
+          make install
+
+      - name: Download FFmpeg
+        run: |
+          curl -L \
+            https://ffmpeg.org/releases/ffmpeg-8.1.1.tar.xz \
+            -o ffmpeg.tar.xz
+
+          tar xf ffmpeg.tar.xz
+
+      - name: Configure FFmpeg
+        run: |
+          cd ffmpeg-8.1.1
+
+          export PKG_CONFIG_PATH="$PWD/../lame-build/lib/pkgconfig"
+
+          ./configure \
+            --prefix="$PWD/build" \
+            --pkg-config-flags="--static" \
+            --extra-cflags="-I$PWD/../lame-build/include" \
+            --extra-ldflags="-L$PWD/../lame-build/lib" \
+            \
+            --disable-debug \
+            --disable-doc \
+            --disable-ffplay \
+            --disable-ffprobe \
+            --disable-network \
+            --disable-everything \
+            \
+            --enable-ffmpeg \
+            \
+            --enable-protocol=file \
+            --enable-protocol=pipe \
+            \
+            --enable-libmp3lame \
+            \
+            --enable-demuxer=mp3 \
+            --enable-demuxer=wav \
+            --enable-demuxer=ogg \
+            --enable-demuxer=flac \
+            --enable-demuxer=mov \
+            --enable-demuxer=matroska \
+            --enable-demuxer=aac \
+            --enable-demuxer=ape \
+            --enable-demuxer=asf \
+            \
+            --enable-decoder=mp3 \
+            --enable-decoder=aac \
+            --enable-decoder=flac \
+            --enable-decoder=pcm_s16le \
+            --enable-decoder=pcm_s24le \
+            --enable-decoder=alac \
+            --enable-decoder=vorbis \
+            --enable-decoder=opus \
+            --enable-decoder=ape \
+            --enable-decoder=wmav2 \
+            \
+            --enable-parser=mpegaudio \
+            --enable-parser=aac \
+            --enable-parser=vorbis \
+            --enable-parser=opus \
+            --enable-parser=flac \
+            \
+            --enable-encoder=libmp3lame \
+            \
+            --enable-muxer=mp3
+
+      - name: Build FFmpeg
+        run: |
+          cd ffmpeg-8.1.1
+
+          make -j"$(nproc)"
+          make install
+
+      - name: Prepare dist
+        run: mkdir -p dist
+
+      - name: Copy binary
+        run: |
+          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/ffmpeg-linux
+
+      - name: Strip binary
+        run: |
+          strip dist/ffmpeg-linux
+
+      - name: Ensure executable
+        run: chmod +x dist/ffmpeg-linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ffmpeg-linux
+          path: dist/ffmpeg-linux
+
+  build-ffmpeg-macos:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          brew install \
+            yasm \
+            nasm \
+            automake \
+            autoconf \
+            libtool
+
+      - name: Download LAME
+        run: |
+          curl -L \
+            https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz \
+            -o lame.tar.gz
+
+          tar xf lame.tar.gz
+
+      - name: Build LAME
+        run: |
+          cd lame-3.100
+
+          ./configure \
+            --disable-shared \
+            --enable-static \
+            --prefix="$PWD/../lame-build"
+
+          make -j"$(sysctl -n hw.ncpu)"
+          make install
+
+      - name: Download FFmpeg
+        run: |
+          curl -L \
+            https://ffmpeg.org/releases/ffmpeg-8.1.1.tar.xz \
+            -o ffmpeg.tar.xz
+
+          tar xf ffmpeg.tar.xz
+
+      - name: Configure FFmpeg
+        run: |
+          cd ffmpeg-8.1.1
+
+          export PKG_CONFIG_PATH="$PWD/../lame-build/lib/pkgconfig"
+
+          ./configure \
+            --prefix="$PWD/build" \
+            --pkg-config-flags="--static" \
+            --extra-cflags="-I$PWD/../lame-build/include" \
+            --extra-ldflags="-L$PWD/../lame-build/lib" \
+            \
+            --disable-debug \
+            --disable-doc \
+            --disable-ffplay \
+            --disable-ffprobe \
+            --disable-network \
+            --disable-everything \
+            \
+            --enable-ffmpeg \
+            \
+            --enable-protocol=file \
+            --enable-protocol=pipe \
+            \
+            --enable-libmp3lame \
+            \
+            --enable-demuxer=mp3 \
+            --enable-demuxer=wav \
+            --enable-demuxer=ogg \
+            --enable-demuxer=flac \
+            --enable-demuxer=mov \
+            --enable-demuxer=matroska \
+            --enable-demuxer=aac \
+            --enable-demuxer=ape \
+            --enable-demuxer=asf \
+            \
+            --enable-decoder=mp3 \
+            --enable-decoder=aac \
+            --enable-decoder=flac \
+            --enable-decoder=pcm_s16le \
+            --enable-decoder=pcm_s24le \
+            --enable-decoder=alac \
+            --enable-decoder=vorbis \
+            --enable-decoder=opus \
+            --enable-decoder=ape \
+            --enable-decoder=wmav2 \
+            \
+            --enable-parser=mpegaudio \
+            --enable-parser=aac \
+            --enable-parser=vorbis \
+            --enable-parser=opus \
+            --enable-parser=flac \
+            \
+            --enable-encoder=libmp3lame \
+            \
+            --enable-muxer=mp3
+
+      - name: Build FFmpeg
+        run: |
+          cd ffmpeg-8.1.1
+
+          make -j"$(sysctl -n hw.ncpu)"
+          make install
+
+      - name: Prepare dist
+        run: mkdir -p dist
+
+      - name: Copy binary
+        run: |
+          cp ffmpeg-8.1.1/build/bin/ffmpeg dist/ffmpeg-macos
+
+      - name: Strip binary
+        run: |
+          strip -x dist/ffmpeg-macos
+
+      - name: Ensure executable
+        run: chmod +x dist/ffmpeg-macos
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ffmpeg-macos
+          path: dist/ffmpeg-macos
+          
   build-image-linux:
     runs-on: ubuntu-latest
 
@@ -34,6 +296,10 @@ jobs:
       - name: Prepare artifact
         run: cp "packages/image/target/x86_64-unknown-linux-musl/release/image" dist/image-linux
 
+      - name: Strip binary
+        run: |
+          strip -x dist/image-linux
+          
       - name: Ensure executable
         run: chmod +x dist/image-linux
 
@@ -64,6 +330,10 @@ jobs:
       - name: Prepare artifact
         run: cp "packages/image/target/release/image" dist/image-macos
 
+      - name: Strip binary
+        run: |
+          strip -x dist/image-macos
+          
       - name: Ensure executable
         run: chmod +x dist/image-macos
 
@@ -93,6 +363,10 @@ jobs:
         run: |
           cp "$HOME/.cargo/bin/markitdown" dist/markitdown-linux
 
+      - name: Strip binary
+        run: |
+          strip -x dist/markitdown-linux
+          
       - name: Ensure executable
         run: chmod +x dist/markitdown-linux
 
@@ -122,6 +396,10 @@ jobs:
         run: |
           cp "$HOME/.cargo/bin/markitdown" dist/markitdown-macos
 
+      - name: Strip binary
+        run: |
+          strip -x dist/markitdown-macos
+          
       - name: Ensure executable
         run: chmod +x dist/markitdown-macos
         
@@ -133,6 +411,8 @@ jobs:
 
   commit:
     needs: [
+      build-ffmpeg-linux,
+      build-ffmpeg-macos,    
       build-image-linux,
       build-image-macos,
       build-markitdown-linux, 
