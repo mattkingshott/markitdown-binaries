@@ -1,7 +1,7 @@
 # Converters
 
-This repository contains zero-dependency MacOS and Linux (Ubuntu) CLI binaries for several conversion tools:
+This repository contains the following pre-built, zero-dependency MacOS and Linux (Ubuntu) CLI binaries:
 
-- [ffmpeg](https://ffmpeg.org) - audio conversion and processing
-- [image](https://crates.io/crates/image) - image conversion and processing.
-- [markitdown-rs](https://crates.io/crates/markitdown) - a port of Microsoft's [python project](https://github.com/microsoft/markitdown).
+- Audio - Built on [ffmpeg](https://ffmpeg.org).
+- Image - Built on [image-rs](https://crates.io/crates/image).
+- Document - Built on [markitdown-rs](https://crates.io/crates/markitdown).
