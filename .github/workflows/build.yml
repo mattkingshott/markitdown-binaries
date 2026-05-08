@@ -93,7 +93,7 @@ jobs:
             --enable-demuxer=ape \
             --enable-demuxer=asf \
             --enable-demuxer=aiff \
-            --enable-demuxer=amr \           
+            --enable-demuxer=amr \
             \
             --enable-decoder=mp3 \
             --enable-decoder=aac \
@@ -101,9 +101,9 @@ jobs:
             --enable-decoder=pcm_s16le \
             --enable-decoder=pcm_s24le \
             --enable-decoder=pcm_s16be \
-            --enable-decoder=pcm_s24be \  
+            --enable-decoder=pcm_s24be \
             --enable-decoder=amrnb \
-            --enable-decoder=amrwb \                
+            --enable-decoder=amrwb \
             --enable-decoder=alac \
             --enable-decoder=vorbis \
             --enable-decoder=opus \
@@ -226,8 +226,8 @@ jobs:
             --enable-demuxer=aac \
             --enable-demuxer=ape \
             --enable-demuxer=asf \
-            --enable-demuxer=aiff \   
-            --enable-demuxer=amr \           
+            --enable-demuxer=aiff \
+            --enable-demuxer=amr \
             \
             --enable-decoder=mp3 \
             --enable-decoder=aac \
@@ -235,9 +235,9 @@ jobs:
             --enable-decoder=pcm_s16le \
             --enable-decoder=pcm_s24le \
             --enable-decoder=pcm_s16be \
-            --enable-decoder=pcm_s24be \      
+            --enable-decoder=pcm_s24be \
             --enable-decoder=amrnb \
-            --enable-decoder=amrwb \                
+            --enable-decoder=amrwb \
             --enable-decoder=alac \
             --enable-decoder=vorbis \
             --enable-decoder=opus \
@@ -280,12 +280,12 @@ jobs:
         with:
           name: audio-macos
           path: dist/audio-macos
-          
+
   build-image-linux:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout    
+      - name: Checkout
         uses: actions/checkout@v6
 
       - name: Install Rust toolchain
@@ -311,7 +311,7 @@ jobs:
       - name: Strip binary
         run: |
           strip -x dist/image-linux
-          
+
       - name: Ensure executable
         run: chmod +x dist/image-linux
 
@@ -325,7 +325,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout    
+      - name: Checkout
         uses: actions/checkout@v6
 
       - name: Install Rust toolchain
@@ -345,7 +345,7 @@ jobs:
       - name: Strip binary
         run: |
           strip -x dist/image-macos
-          
+
       - name: Ensure executable
         run: chmod +x dist/image-macos
 
@@ -378,7 +378,7 @@ jobs:
       - name: Strip binary
         run: |
           strip -x dist/document-linux
-          
+
       - name: Ensure executable
         run: chmod +x dist/document-linux
 
@@ -411,10 +411,10 @@ jobs:
       - name: Strip binary
         run: |
           strip -x dist/document-macos
-          
+
       - name: Ensure executable
         run: chmod +x dist/document-macos
-        
+
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
@@ -424,10 +424,10 @@ jobs:
   commit:
     needs: [
       build-ffmpeg-linux,
-      build-ffmpeg-macos,    
+      build-ffmpeg-macos,
       build-image-linux,
       build-image-macos,
-      build-markitdown-linux, 
+      build-markitdown-linux,
       build-markitdown-macos
     ]
     runs-on: ubuntu-latest
@@ -444,7 +444,7 @@ jobs:
 
       - name: Ensure executables
         run: chmod +x dist/*
-        
+
       - name: Commit binaries
         uses: EndBug/add-and-commit@v10
         with:
