@@ -12,5 +12,5 @@ fn main() {
     let img = image::open(&args.input).expect("failed to open image");
     let rgb = img.to_rgb8();
 
-    rgb.save(&args.output).expect("failed to save image");
+    rgb.save_with_format(&args.output, image::ImageFormat::Jpeg).expect("failed to save image");
 }
