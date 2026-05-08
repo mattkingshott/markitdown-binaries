@@ -92,12 +92,19 @@ jobs:
             --enable-demuxer=aac \
             --enable-demuxer=ape \
             --enable-demuxer=asf \
+            --enable-demuxer=opus \
+            --enable-demuxer=aiff \
+            --enable-demuxer=amr            
             \
             --enable-decoder=mp3 \
             --enable-decoder=aac \
             --enable-decoder=flac \
             --enable-decoder=pcm_s16le \
             --enable-decoder=pcm_s24le \
+            --enable-decoder=pcm_s16be \
+            --enable-decoder=pcm_s24be \  
+            --enable-decoder=amrnb
+            --enable-decoder=amrwb                 
             --enable-decoder=alac \
             --enable-decoder=vorbis \
             --enable-decoder=opus \
@@ -220,12 +227,19 @@ jobs:
             --enable-demuxer=aac \
             --enable-demuxer=ape \
             --enable-demuxer=asf \
+            --enable-demuxer=opus \
+            --enable-demuxer=aiff \   
+            --enable-demuxer=amr            
             \
             --enable-decoder=mp3 \
             --enable-decoder=aac \
             --enable-decoder=flac \
             --enable-decoder=pcm_s16le \
             --enable-decoder=pcm_s24le \
+            --enable-decoder=pcm_s16be \
+            --enable-decoder=pcm_s24be \      
+            --enable-decoder=amrnb
+            --enable-decoder=amrwb                 
             --enable-decoder=alac \
             --enable-decoder=vorbis \
             --enable-decoder=opus \
