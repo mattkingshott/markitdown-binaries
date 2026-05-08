@@ -92,7 +92,6 @@ jobs:
             --enable-demuxer=aac \
             --enable-demuxer=ape \
             --enable-demuxer=asf \
-            --enable-demuxer=opus \
             --enable-demuxer=aiff \
             --enable-demuxer=amr            
             \
@@ -227,7 +226,6 @@ jobs:
             --enable-demuxer=aac \
             --enable-demuxer=ape \
             --enable-demuxer=asf \
-            --enable-demuxer=opus \
             --enable-demuxer=aiff \   
             --enable-demuxer=amr            
             \
